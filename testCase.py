@@ -16,6 +16,7 @@ def test_open():
     driver = webdriver.Chrome()
     driver.maximize_window()
     driver.get('http://localhost:8000/projects/')
+    assert "Welcome!" in driver.page_source
     driver.quit()
 
 #test_open()
@@ -25,7 +26,9 @@ def test_scrolling():
     driver.maximize_window()
     driver.get('http://localhost:8000/projects/')
     driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")
-    time.sleep(2)
+    elem = driver.find_element(By.XPATH, '//h4[text()="Education"]')
+    assert "Education" in elem.text
+    time.sleep(3)
     driver.quit()
 
 #test_scrolling()
@@ -36,6 +39,7 @@ def test_blog():
     driver.get('http://localhost:8000/projects/')
     elem = driver.find_element_by_link_text('Blog')
     elem.click()
+    assert "Blog Index" in driver.page_source
     driver.quit()
 
 #test_blog()
@@ -63,7 +67,7 @@ def test_blog_CCAactivities():
     print("Not found")
     driver.quit()
     
-test_blog_CCAactivities()
+#test_blog_CCAactivities()
     
 def test_blog_Photography():
     driver = webdriver.Chrome()
