@@ -6,11 +6,12 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-#from rp-portfolio.personal_portfolio import *
+
 
 #----------------No Need--------------------------------
 #from selenium.common.exceptions import TimeoutException
 #from selenium.webdriver.support.select import Select
+#from rp-portfolio.manage import *
 
 def test_open():
     driver = webdriver.Chrome()
@@ -18,6 +19,7 @@ def test_open():
     driver.get('http://localhost:8000/projects/')
     assert "Welcome!" in driver.page_source
     driver.quit()
+    #add title
 
 test_open()
 
@@ -57,14 +59,12 @@ def test_blog_CCAactivities():
     yourName = driver.find_element_by_id('id_author')
     yourName.send_keys("Test")
     enterComment = driver.find_element_by_id('id_body')
-    enterComment.send_keys("Good Job")
+    putComment = "Good Job" 
+    enterComment.send_keys(putComment)
     button = driver.find_element_by_class_name("btn.btn-primary")
     button.click()
     driver.implicitly_wait(10)
-    text = driver.find_element_by_tag_name("p").text
-    with pytest.raises(AssertionError):
-        assert text == "Good Job"
-    print("Not found")
+    assert driver.find_element_by_xpath("//p[text()='"+ putComment +"']") 
     driver.quit()
     
 test_blog_CCAactivities()
@@ -82,11 +82,12 @@ def test_blog_Photography():
     yourName = driver.find_element_by_id('id_author')
     yourName.send_keys("Test")
     enterComment = driver.find_element_by_id('id_body')
-    enterComment.send_keys("Good Job")
+    putComment = "Good Job" 
+    enterComment.send_keys(putComment)
     button = driver.find_element_by_class_name("btn.btn-primary")
     button.click()
     driver.implicitly_wait(10)
-    #assert
+    assert driver.find_element_by_xpath("//p[text()='"+ putComment +"']") 
     driver.quit()
     
 test_blog_Photography()
@@ -104,11 +105,12 @@ def test_blog_Project():
     yourName = driver.find_element_by_id('id_author')
     yourName.send_keys("Test")
     enterComment = driver.find_element_by_id('id_body')
-    enterComment.send_keys("Good Job")
+    putComment = "Good Job" 
+    enterComment.send_keys(putComment)
     button = driver.find_element_by_class_name("btn.btn-primary")
     button.click()
     driver.implicitly_wait(10)
-    #assert
+    assert driver.find_element_by_xpath("//p[text()='"+ putComment +"']")
     driver.quit()
     
 test_blog_Project()
@@ -176,3 +178,132 @@ def test_maxlength60():
     driver.quit()
 
 test_maxlength60()
+
+def test_without():
+    driver = webdriver.Chrome()
+    driver.maximize_window()
+    driver.get('http://localhost:8000/projects/')
+    elem = driver.find_element_by_link_text('Blog')
+    elem.click()
+    time.sleep(2)
+    elem = driver.find_element_by_link_text('Purple Project')
+    elem.click()
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'btn.btn-primary')))
+    button = driver.find_element_by_class_name("btn.btn-primary")
+    button.click()
+
+    assert driver.find_element_by_css_selector("input:invalid")
+    assert driver.find_element_by_css_selector("textarea:invalid")
+    driver.implicitly_wait(10)
+    time.sleep(2)
+    driver.quit()
+    
+test_without()
+
+def test_authorwRandom():
+    driver = webdriver.Chrome()
+    driver.maximize_window()
+    driver.get('http://localhost:8000/projects/')
+    elem = driver.find_element_by_link_text('Blog')
+    elem.click()
+    time.sleep(2)
+    elem = driver.find_element_by_link_text('Purple Project')
+    elem.click()
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'id_author')))
+    yourName = driver.find_element_by_id('id_author')
+    text = "?/$^&@$*3252"
+    yourName.send_keys(text)
+    assert yourName.get_attribute('value') == text
+    
+    enterComment = driver.find_element_by_id('id_body')
+    enterComment.send_keys("Good Job")
+    button = driver.find_element_by_class_name("btn.btn-primary")
+    button.click()
+    driver.implicitly_wait(10)
+
+    driver.quit()
+
+test_authorwRandom()
+
+def test_loginwithadmin():
+    driver = webdriver.Chrome()
+    driver.maximize_window()
+    driver.get('http://localhost:8000/admin/')
+    Username = driver.find_element_by_id('id_username')
+    Username.send_keys("sandy")
+    Password = driver.find_element_by_id('id_password')
+    Password.send_keys("18U48c95")
+    driver.find_element_by_xpath("//input[@type='submit' and @value='Log in']").click()
+    time.sleep(2)
+    assert "Site administration | Django site admin" in driver.title
+    driver.quit()
+    
+test_loginwithadmin()
+
+def test_loginwithadminFalseUser():
+    driver = webdriver.Chrome()
+    driver.maximize_window()
+    driver.get('http://localhost:8000/admin/')
+    Username = driver.find_element_by_id('id_username')
+    Username.send_keys("kee")
+    Password = driver.find_element_by_id('id_password')
+    Password.send_keys("18U48c95")
+    driver.find_element_by_xpath("//input[@type='submit' and @value='Log in']").click()
+    time.sleep(2)
+    assert "Please enter the correct username and password for a staff account. Note that both fields may be case-sensitive." in driver.find_element_by_class_name("errornote").text
+    driver.quit()
+    
+test_loginwithadminFalseUser()
+
+def test_loginwithadminFalsePassword():
+    driver = webdriver.Chrome()
+    driver.maximize_window()
+    driver.get('http://localhost:8000/admin/')
+    Username = driver.find_element_by_id('id_username')
+    Username.send_keys("sandy")
+    Password = driver.find_element_by_id('id_password')
+    Password.send_keys("12345678")
+    driver.find_element_by_xpath("//input[@type='submit' and @value='Log in']").click()
+    time.sleep(2)
+    assert "Please enter the correct username and password for a staff account. Note that both fields may be case-sensitive." in driver.find_element_by_class_name("errornote").text
+    driver.quit()
+    
+test_loginwithadminFalsePassword()
+
+def test_loginwithadminWithout():
+    driver = webdriver.Chrome()
+    driver.maximize_window()
+    driver.get('http://localhost:8000/admin/')
+    driver.find_element_by_xpath("//input[@type='submit' and @value='Log in']").click()
+    time.sleep(2)
+    assert driver.find_element_by_css_selector("input:invalid")
+    driver.quit()
+    
+test_loginwithadminWithout()
+
+def test_loginwithadminWithoutName():
+    driver = webdriver.Chrome()
+    driver.maximize_window()
+    driver.get('http://localhost:8000/admin/')
+    Password = driver.find_element_by_id('id_password')
+    Password.send_keys("12345678")
+    driver.find_element_by_xpath("//input[@type='submit' and @value='Log in']").click()
+    time.sleep(2)
+    assert driver.find_element_by_css_selector("input:invalid")
+    driver.quit()
+    
+test_loginwithadminWithoutName()
+
+def test_loginwithadminWithoutPassword():
+    driver = webdriver.Chrome()
+    driver.maximize_window()
+    driver.get('http://localhost:8000/admin/')
+    Username = driver.find_element_by_id('id_username')
+    Username.send_keys("sandy")
+    driver.find_element_by_xpath("//input[@type='submit' and @value='Log in']").click()
+    time.sleep(2)
+    assert driver.find_element_by_css_selector("input:invalid")
+    driver.quit()
+    
+test_loginwithadminWithoutPassword()
+
